@@ -1,0 +1,16 @@
+[package]
+name = "influxlp-tools"
+version = "0.1.2"
+description = "Influx Line Protocol Tools is a simple parser and builder for InfluxDB v2 line protocol"
+edition = "2021"
+homepage = "https://github.com/sbr075/influxlp-tools-rs"
+repository = "https://github.com/sbr075/influxlp-tools-rs"
+readme = "README.md"
+license = "MIT"
+keywords = ["influxdb", "influxdbv2", "line-protocol", "parser", "builder"]
+categories = ["parser-implementations"]
+
+[dependencies]
+anyhow = "1.0.90"
+regex = "1.11.0"
+thiserror = "1.0.64"

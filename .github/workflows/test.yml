@@ -1,0 +1,26 @@
+name: test
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: Run Rust tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+        
+    - name: Get Stable Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        profile: minimal
+        toolchain: stable
+        components: rustfmt
+
+    - uses: Swatinem/rust-cache@v2
+      with:
+        save-if: ${{ github.event.repository.default_branch == github.ref_name }}
+
+    - name: Run Tests
+      run: cargo test --all-features
