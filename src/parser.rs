@@ -1,3 +1,13 @@
+//! The parser methods consist of three main methods used for parsing line(s)
+//! 1. [LineProtocol::parse_line]
+//!     - Parse a single line protocol line into the [LineProtocol] struct
+//! 2. [LineProtocol::parse_lines]
+//!     - Parse multiple lines seperated by a newline into a vector of
+//!       [LineProtocol] structs
+//! 3. [LineProtocol::parse_vec]
+//!     - Parse multiple lines stored in a vector into a vector of
+//!       [LineProtocol] structs
+
 use std::{collections::HashMap, hash::Hash};
 
 use crate::error::{ParseError, Result};

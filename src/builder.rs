@@ -1,3 +1,11 @@
+//! A line is built by using the builder methods
+//!
+//! To build a line protocol string start by calling [LineProtocol::new] with
+//! the measurement name. Afterwards you can use the different methods, e.g,
+//! [LineProtocol::add_tag] or [LineProtocol::add_field] to populate the
+//! datapoint. When you are finished call [LineProtocol::build] to convert the
+//! struct into a valid line protocol string
+
 use std::collections::HashMap;
 
 use crate::{
@@ -216,7 +224,7 @@ impl LineProtocol {
 
     /// Set the timestamp for the data point
     ///
-    /// It is [recommend] (https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#timestamp)
+    /// It is [recommend](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#timestamp)
     /// to set a timestamp. By default InfluxDB v2 expects the timestamp to be
     /// in nanosecond precision. If you are using any other form of
     /// precision it needs to be explicitly set when making the query
@@ -239,7 +247,7 @@ impl LineProtocol {
 
     /// Set the timestamp for the data point
     ///
-    /// It is [recommend] (https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#timestamp)
+    /// It is [recommend](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#timestamp)
     /// to set a timestamp. By default InfluxDB v2 expects the timestamp to be
     /// in nanosecond precision. If you are using any other form of
     /// precision it needs to be explicitly set when making the query

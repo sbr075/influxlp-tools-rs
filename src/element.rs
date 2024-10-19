@@ -1,3 +1,19 @@
+//! Elements are whats makes up the individual parts of a line protocol string
+//!
+//! # Line Protocol
+//!
+//! ```text
+//! measurement         tag set             field set              timestamp
+//! ----------- ------------------- ------------------------- -------------------
+//! measurement,tag1=val1,tag2=val2 field1="val1",field2=true 1729270461612452700
+//! ```
+//!
+//! ## Explanation
+//! - measurement: The measurement name
+//! - tag set: Optional key value pairs used to filter data points
+//! - field set: Required key value pairs containing the data point data
+//! - timestamp: Optional unix timestamp
+
 use std::fmt::Display;
 
 use anyhow::Context;
