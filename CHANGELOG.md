@@ -12,6 +12,10 @@ All notable changes to this project will be documented in this file.
 
 - Fix measurement name parsing ([43729de](https://github.com/sbr075/influxlp-tools-rs/commit/43729dedb7e1ef644227762a1962d3a867da61cd))
 
+### 🧹 Routine Tasks
+
+- Bump version from 0.1.2 to 0.1.3 ([5e55392](https://github.com/sbr075/influxlp-tools-rs/commit/5e55392adfade5c665bd7f8566b0ffffaf838f8f))
+
 ## [0.1.2] - 2024-10-19
 
 ### 🚀 Features
