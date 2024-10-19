@@ -27,6 +27,47 @@ impl LineProtocol {
         }
     }
 
+    /// Overwrite the measurement name with a new name
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let mut line_protocol = LineProtocol::new("measurement")
+    ///     .add_field("key", "value");
+    ///
+    /// line_protocol = line_protocol.measurement("new_measurement");
+    /// ```
+    ///
+    /// # Args
+    /// * `measurement` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#measurement)
+    ///   measurement name
+    pub fn measurement<T>(mut self, measurement: T) -> Self
+    where
+        T: Into<Measurement>,
+    {
+        self.measurement = measurement.into();
+        self
+    }
+
+    /// Overwrite the measurement name with a new name
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let mut line_protocol = LineProtocol::new("measurement")
+    ///     .add_field("key", "value");
+    ///
+    /// line_protocol.measurement_ref("new_measurement");
+    /// ```
+    ///
+    /// # Args
+    /// * `measurement` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#measurement)
+    ///   measurement name
+    pub fn measurement_ref<T>(&mut self, measurement: T)
+    where
+        T: Into<Measurement>,
+    {
+        self.measurement = measurement.into();
+    }
+
     /// Add or update a [tag key-value pair](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#tag-set) to the data point
     ///
     /// This function is useful if you want to follow a builder pattern
@@ -130,7 +171,7 @@ impl LineProtocol {
 
     /// Add or update a [field key-value pair](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#field-set) to the data point
     ///
-    /// This function is useful if you want to follow a builder pattern
+    /// This function is useful if you want to build a data point dynamically
     ///
     /// # Example
     /// ```rust,ignore
@@ -220,6 +261,35 @@ impl LineProtocol {
         T: Into<i64>,
     {
         self.timestamp = Some(timestamp.into());
+    }
+
+    /// Delete the set timestamp
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let mut line_protocol = LineProtocol::new("measurement")
+    ///     .add_field("key", "value")
+    ///     .with_timestamp_ref(1729270461612452700i64);
+    ///
+    /// line_protocol = line_protocol.delete_timestamp();
+    /// ```
+    pub fn delete_timestamp(mut self) -> Self {
+        self.timestamp = None;
+        self
+    }
+
+    /// Delete the set timestamp
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let mut line_protocol = LineProtocol::new("measurement")
+    ///     .add_field("key", "value")
+    ///     .with_timestamp_ref(1729270461612452700i64);
+    ///
+    /// line_protocol.delete_timestamp();
+    /// ```
+    pub fn delete_timestamp_ref(&mut self) {
+        self.timestamp = None;
     }
 
     /// Builds an InfluxDB v2 data point using the previously defined
