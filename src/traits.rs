@@ -1,4 +1,4 @@
 pub trait Format {
-    fn escape(&self) -> String;
-    fn unescape(&self) -> String;
+    fn escape(&self) -> Self;
+    fn unescape(&self) -> Self;
 }

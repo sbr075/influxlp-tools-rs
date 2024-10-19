@@ -8,18 +8,6 @@ use crate::traits::Format;
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct Measurement(pub String);
 
-impl Measurement {
-    // Characters that need to be escaped
-    // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
-    pub fn escape(&self) -> String {
-        self.0.replace(" ", r"\ ").replace(",", r"\,")
-    }
-
-    pub fn unescape(&self) -> String {
-        self.0.replace(r"\,", ",").replace(r"\ ", " ")
-    }
-}
-
 impl From<&str> for Measurement {
     fn from(value: &str) -> Self {
         Measurement(value.to_string())
@@ -38,26 +26,27 @@ impl From<String> for Measurement {
     }
 }
 
+impl Display for Measurement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl Format for Measurement {
+    // Characters that need to be escaped
+    // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
+    fn escape(&self) -> Self {
+        Measurement(self.0.replace(" ", r"\ ").replace(",", r"\,"))
+    }
+
+    fn unescape(&self) -> Self {
+        Measurement(self.0.replace(r"\,", ",").replace(r"\ ", " "))
+    }
+}
+
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct TagKey(pub String);
 
-impl Format for TagKey {
-    // Characters that need to be escaped
-    // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
-    fn escape(&self) -> String {
-        self.0
-            .replace(" ", r"\ ")
-            .replace(",", r"\,")
-            .replace("=", r"\=")
-    }
-
-    fn unescape(&self) -> String {
-        self.0
-            .replace(r"\=", "=")
-            .replace(r"\,", ",")
-            .replace(r"\ ", " ")
-    }
-}
 impl From<&str> for TagKey {
     fn from(value: &str) -> Self {
         TagKey(value.to_string())
@@ -76,26 +65,36 @@ impl From<String> for TagKey {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct TagValue(pub String);
-
-impl Format for TagValue {
-    // Characters that need to be escaped
-    // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
-    fn escape(&self) -> String {
-        self.0
-            .replace(" ", r"\ ")
-            .replace(",", r"\,")
-            .replace("=", r"\=")
-    }
-
-    fn unescape(&self) -> String {
-        self.0
-            .replace(r"\=", "=")
-            .replace(r"\,", ",")
-            .replace(r"\ ", " ")
+impl Display for TagKey {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
+
+impl Format for TagKey {
+    // Characters that need to be escaped
+    // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
+    fn escape(&self) -> Self {
+        TagKey(
+            self.0
+                .replace(" ", r"\ ")
+                .replace(",", r"\,")
+                .replace("=", r"\="),
+        )
+    }
+
+    fn unescape(&self) -> Self {
+        TagKey(
+            self.0
+                .replace(r"\=", "=")
+                .replace(r"\,", ",")
+                .replace(r"\ ", " "),
+        )
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TagValue(pub String);
 
 impl From<&str> for TagValue {
     fn from(value: &str) -> Self {
@@ -115,26 +114,36 @@ impl From<String> for TagValue {
     }
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub struct FieldKey(pub String);
-
-impl Format for FieldKey {
-    // Characters that need to be escaped
-    // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
-    fn escape(&self) -> String {
-        self.0
-            .replace(" ", r"\ ")
-            .replace(",", r"\,")
-            .replace("=", r"\=")
-    }
-
-    fn unescape(&self) -> String {
-        self.0
-            .replace(r"\=", "=")
-            .replace(r"\,", ",")
-            .replace(r"\ ", " ")
+impl Display for TagValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
+
+impl Format for TagValue {
+    // Characters that need to be escaped
+    // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
+    fn escape(&self) -> Self {
+        TagValue(
+            self.0
+                .replace(" ", r"\ ")
+                .replace(",", r"\,")
+                .replace("=", r"\="),
+        )
+    }
+
+    fn unescape(&self) -> Self {
+        TagValue(
+            self.0
+                .replace(r"\=", "=")
+                .replace(r"\,", ",")
+                .replace(r"\ ", " "),
+        )
+    }
+}
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub struct FieldKey(pub String);
 
 impl From<&str> for FieldKey {
     fn from(value: &str) -> Self {
@@ -151,6 +160,34 @@ impl From<&String> for FieldKey {
 impl From<String> for FieldKey {
     fn from(value: String) -> Self {
         FieldKey(value)
+    }
+}
+
+impl Display for FieldKey {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl Format for FieldKey {
+    // Characters that need to be escaped
+    // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
+    fn escape(&self) -> Self {
+        FieldKey(
+            self.0
+                .replace(" ", r"\ ")
+                .replace(",", r"\,")
+                .replace("=", r"\="),
+        )
+    }
+
+    fn unescape(&self) -> Self {
+        FieldKey(
+            self.0
+                .replace(r"\=", "=")
+                .replace(r"\,", ",")
+                .replace(r"\ ", " "),
+        )
     }
 }
 
@@ -329,26 +366,26 @@ impl FromStr for FieldValue {
 impl Format for FieldValue {
     // Characters that need to be escaped
     // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
-    fn escape(&self) -> String {
+    fn escape(&self) -> Self {
         match self {
             FieldValue::String(string) => {
                 let escaped = string.replace("\\", "\\\\").replace("\"", "\\\"");
-                format!("\"{escaped}\"")
+                FieldValue::String(format!("\"{escaped}\""))
             }
-            other => other.to_string(),
+            other => other.clone(),
         }
     }
 
-    fn unescape(&self) -> String {
+    fn unescape(&self) -> Self {
         match self {
             FieldValue::String(string) => {
                 let unescaped = match string.starts_with("\"") && string.ends_with("\"") {
                     true => &string[1..string.len() - 1],
                     false => string.as_str(),
                 };
-                unescaped.replace("\\\"", "\"").replace("\\\\", "\\")
+                FieldValue::String(unescaped.replace("\\\"", "\"").replace("\\\\", "\\"))
             }
-            other => other.to_string(),
+            other => other.clone(),
         }
     }
 }
