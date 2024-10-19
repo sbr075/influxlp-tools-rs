@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### 🚀 Features
+
+- [**breaking**] Rework from traits for string values for field value ([60a83d3](https://github.com/sbr075/influxlp-tools-rs/commit/60a83d30ab3eb65c00d33482cfb945ade1a6ab3e))
+
 ### 🐛 Bug Fixes
 
 - Fix measurement name parsing ([43729de](https://github.com/sbr075/influxlp-tools-rs/commit/43729dedb7e1ef644227762a1962d3a867da61cd))
