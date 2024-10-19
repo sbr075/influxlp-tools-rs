@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### 🚀 Features
 
 - Add parse vec method ([4b4edbc](https://github.com/sbr075/influxlp-tools-rs/commit/4b4edbcc683e9feae1c6b29a8e9340cf98cf1df2))
+- Add getter setter for line protocol fields ([8d84a31](https://github.com/sbr075/influxlp-tools-rs/commit/8d84a3191f9ce6c1b8195adccf9dd0fc463543d4))
 
 ### 📚 Documentation
 
