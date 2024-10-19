@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### 🚀 Features
+
+- Add parse vec method ([4b4edbc](https://github.com/sbr075/influxlp-tools-rs/commit/4b4edbcc683e9feae1c6b29a8e9340cf98cf1df2))
+
 ### 📚 Documentation
 
 - Add code documentation ([91c78c6](https://github.com/sbr075/influxlp-tools-rs/commit/91c78c6f034e319ed26c4acc16e1096490691c69))
