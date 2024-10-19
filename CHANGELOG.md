@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.1.2] - 2024-10-19
 
 ### 🚀 Features
 
@@ -11,6 +11,8 @@ All notable changes to this project will be documented in this file.
 ### 🔨 Build Environment
 
 - Add release workflow ([0a80fc3](https://github.com/sbr075/influxlp-tools-rs/commit/0a80fc3c690db6853dfaccb3db51209c515246de))
+- Fix release workflow ([a272d65](https://github.com/sbr075/influxlp-tools-rs/commit/a272d6594e3421ad7b539afb887c24f2391a3784))
+- Fix changelog workflow ([47178fd](https://github.com/sbr075/influxlp-tools-rs/commit/47178fdf70edd3a3a98d95968722d0350acb4e7c))
 
 ### 🧹 Routine Tasks
 
