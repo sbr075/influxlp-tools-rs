@@ -10,10 +10,13 @@ pub mod traits;
 
 #[derive(Debug, Clone)]
 pub struct LineProtocol {
+    /// The data point measurement name
     pub measurement: Measurement,
 
+    /// The data point tag set
     pub tags: Option<HashMap<TagKey, TagValue>>,
 
+    /// The data point field set
     pub fields: HashMap<FieldKey, FieldValue>,
 
     /// To ensure a data point includes the time a metric is observed (not

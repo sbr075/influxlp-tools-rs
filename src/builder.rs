@@ -10,6 +10,11 @@ use crate::{
 use crate::error::Result;
 
 impl LineProtocol {
+    /// Create a new [LineProtocol] for building a single data point
+    ///
+    /// # Args
+    /// * `measurement` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#measurement)
+    ///   measurement name
     pub fn new<T>(measurement: T) -> Self
     where
         T: Into<Measurement>,
@@ -22,6 +27,21 @@ impl LineProtocol {
         }
     }
 
+    /// Add or update a [tag key-value pair](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#tag-set) to the data point
+    ///
+    /// This function is useful if you want to follow a builder pattern
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let line_protocol = LineProtocol::new("measurement")
+    ///     .add_tag("key", "value");
+    /// ```
+    ///
+    /// # Args
+    /// * `key` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#special-characters)
+    ///   tag key
+    /// * `value` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#special-characters)
+    ///   tag value
     pub fn add_tag<K, V>(mut self, key: K, value: V) -> Self
     where
         K: Into<TagKey>,
@@ -33,6 +53,24 @@ impl LineProtocol {
         self
     }
 
+    /// Add or update a [tag key-value pair](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#tag-set) to the data point
+    ///
+    /// This function is useful if you want to build a data point dynamically
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let line_protocol = LineProtocol::new("measurement");
+    ///
+    /// for (key, value) in tags {
+    ///     line_protocol.add_tag_ref(key, value);
+    /// }
+    /// ```
+    ///
+    /// # Args
+    /// * `key` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#special-characters)
+    ///   tag key
+    /// * `value` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#special-characters)
+    ///   tag value
     pub fn add_tag_ref<K, V>(&mut self, key: K, value: V)
     where
         K: Into<TagKey>,
@@ -43,6 +81,44 @@ impl LineProtocol {
             .insert(key.into(), value.into());
     }
 
+    /// Delete a tag from the data point
+    ///
+    /// # Args
+    /// * `key` - An existing [TagKey]
+    pub fn delete_tag<K>(mut self, key: K) -> Self
+    where
+        K: Into<TagKey>,
+    {
+        self.tags.get_or_insert(HashMap::new()).remove(&key.into());
+        self
+    }
+
+    /// Delete a tag from the data point
+    ///
+    /// # Args
+    /// * `key` - An existing [TagKey]
+    pub fn delete_tag_ref<K>(&mut self, key: K)
+    where
+        K: Into<TagKey>,
+    {
+        self.tags.get_or_insert(HashMap::new()).remove(&key.into());
+    }
+
+    /// Add or update a [field key-value pair](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#field-set) to the data point
+    ///
+    /// This function is useful if you want to follow a builder pattern
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let line_protocol = LineProtocol::new("measurement")
+    ///     .add_field("key", "value");
+    /// ```
+    ///
+    /// # Args
+    /// * `key` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#special-characters)
+    ///   field key
+    /// * `value` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#special-characters)
+    ///   field value
     pub fn add_field<K, V>(mut self, key: K, value: V) -> Self
     where
         K: Into<FieldKey>,
@@ -52,6 +128,24 @@ impl LineProtocol {
         self
     }
 
+    /// Add or update a [field key-value pair](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#field-set) to the data point
+    ///
+    /// This function is useful if you want to follow a builder pattern
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let line_protocol = LineProtocol::new("measurement");
+    ///
+    /// for (key, value) in fields {
+    ///     line_protocol.add_field_ref(key, value);
+    /// }
+    /// ```
+    ///
+    /// # Args
+    /// * `key` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#special-characters)
+    ///   field key
+    /// * `value` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#special-characters)
+    ///   field value
     pub fn add_field_ref<K, V>(&mut self, key: K, value: V)
     where
         K: Into<FieldKey>,
@@ -60,6 +154,44 @@ impl LineProtocol {
         self.fields.insert(key.into(), value.into());
     }
 
+    /// Delete a field from the data point
+    ///
+    /// # Args
+    /// * `key` - An existing [FieldKey]
+    pub fn delete_field<K>(mut self, key: K) -> Self
+    where
+        K: Into<FieldKey>,
+    {
+        self.fields.remove(&key.into());
+        self
+    }
+
+    /// Delete a field from the data point
+    ///
+    /// # Args
+    /// * `key` - An existing [FieldKey]
+    pub fn delete_field_ref<K>(&mut self, key: K)
+    where
+        K: Into<FieldKey>,
+    {
+        self.fields.remove(&key.into());
+    }
+
+    /// Set the timestamp for the data point
+    ///
+    /// It is [recommend] (https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#timestamp)
+    /// to set a timestamp. By default InfluxDB v2 expects the timestamp to be
+    /// in nanosecond precision. If you are using any other form of
+    /// precision it needs to be explicitly set when making the query
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let line_protocol = LineProtocol::new("measurement");
+    ///     .with_timestamp(1729270461612452700i64);
+    /// ```
+    ///
+    /// # Args
+    /// * `timestamp` - A unix timestamp
     pub fn with_timestamp<T>(mut self, timestamp: T) -> Self
     where
         T: Into<i64>,
@@ -68,6 +200,21 @@ impl LineProtocol {
         self
     }
 
+    /// Set the timestamp for the data point
+    ///
+    /// It is [recommend] (https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#timestamp)
+    /// to set a timestamp. By default InfluxDB v2 expects the timestamp to be
+    /// in nanosecond precision. If you are using any other form of
+    /// precision it needs to be explicitly set when making the query
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let line_protocol = LineProtocol::new("measurement");
+    /// line_protocol.with_timestamp_ref(1729270461612452700i64);
+    /// ```
+    ///
+    /// # Args
+    /// * `timestamp` - A unix timestamp
     pub fn with_timestamp_ref<T>(&mut self, timestamp: T)
     where
         T: Into<i64>,
@@ -75,6 +222,10 @@ impl LineProtocol {
         self.timestamp = Some(timestamp.into());
     }
 
+    /// Builds an InfluxDB v2 data point using the previously defined
+    /// measurement name, optional tags, fields, and an optional timestamp
+    ///
+    /// In addition validation checks are performed on the individual parts
     pub fn build(&self) -> Result<String> {
         if self.measurement.0.is_empty() {
             return Err(BuilderError::EmptyMeasurement.into());

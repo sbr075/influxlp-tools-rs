@@ -9,6 +9,7 @@ use crate::{
 };
 
 impl LineProtocol {
+    /// Split a line protocol part from the rest of the line protocol
     fn parse_part<P>(chars: &mut P) -> String
     where
         P: Iterator<Item = char>,
@@ -43,6 +44,8 @@ impl LineProtocol {
         part.trim().to_string()
     }
 
+    /// Parses a set (tag- or field set) into a hashmap of the defined key-value
+    /// types
     fn parse_set<K, V>(set: &str) -> Result<HashMap<K, V>>
     where
         K: Format + Convert + Hash + PartialEq + Eq,
@@ -103,7 +106,7 @@ impl LineProtocol {
         Ok(set)
     }
 
-    /// Splits the string on the first non-escaped comma
+    /// Parses the identifier (measurement and tag set)
     fn parse_identifiers(
         input: String,
     ) -> Result<(Measurement, Option<HashMap<TagKey, TagValue>>)> {
@@ -136,12 +139,33 @@ impl LineProtocol {
         Ok((measurement, tags))
     }
 
+    /// Parse a single line protocol line into the [LineProtocol] struct
+    ///
+    /// Allows for modifying the line protocol by adding or removing fields/tags
+    /// and rebuilding
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let line = "measurement,tag=value field=true 1729270461612452700"
+    /// let parsed_line = LineProtocol::parse_line(line).unwrap();
+    ///
+    /// parsed_line.delete_tag("tag");
+    /// parsed_line.add_field("field2", "hello");
+    /// parsed_line.with_timestamp(1729270461612452800i64)
+    ///
+    /// let line = parsed_line.build().unwrap();
+    /// // Output: measurement field=true,field2="hello" 1729270461612452800
+    /// ```
+    ///
+    /// # Args
+    /// * `line` - A InfluxDB line protocol line
     pub fn parse_line(line: &str) -> Result<Self> {
         // Comment line
         if line.starts_with("#") {
             return Err(ParseError::CommentLine.into());
         }
 
+        // Can't parse empty lines
         if line.is_empty() {
             return Err(ParseError::EmptyLine.into());
         }
@@ -182,6 +206,21 @@ impl LineProtocol {
         Ok(line_protocol)
     }
 
+    /// Parse multiple lines seprated by a newline (\n)
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let lines = vec![
+    ///     "measurement,tag=value field=\"value\"",
+    ///     "measurement,tag=value field=true 1729270461612452700",
+    ///     ...
+    /// ];
+    ///
+    /// let parsed = LineProtocol::parse_lines(lines.join("\n"));
+    /// ```
+    ///
+    /// # Args
+    /// * `lines` - Multiple InfluxDB line protocol lines seperated by a newline
     pub fn parse_lines(lines: &str) -> Result<Vec<Self>> {
         let mut parsed_lines: Vec<LineProtocol> = Vec::new();
         for line in lines.lines() {
