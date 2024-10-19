@@ -100,7 +100,7 @@ impl LineProtocol {
             let key = K::parse(&word[0]).map_err(|e| ParseError::InvalidSet(e.into()))?;
             let value = V::parse(&word[1]).map_err(|e| ParseError::InvalidSet(e.into()))?;
 
-            set.insert(key, value);
+            set.insert(key.unescape(), value.unescape());
         }
 
         Ok(set)
@@ -160,6 +160,9 @@ impl LineProtocol {
     /// # Args
     /// * `line` - A InfluxDB line protocol line
     pub fn parse_line(line: &str) -> Result<Self> {
+        // Trim away leading and trailing whitespace
+        let line = line.trim();
+
         // Comment line
         if line.starts_with("#") {
             return Err(ParseError::CommentLine.into());
@@ -206,7 +209,9 @@ impl LineProtocol {
         Ok(line_protocol)
     }
 
-    /// Parse multiple lines seprated by a newline (\n)
+    /// Parse a vector of lines
+    ///
+    /// Empty lines and comment lines are silently ignored
     ///
     /// # Example
     /// ```rust,ignore
@@ -216,16 +221,21 @@ impl LineProtocol {
     ///     ...
     /// ];
     ///
-    /// let parsed = LineProtocol::parse_lines(lines.join("\n"));
+    /// let parsed = LineProtocol::parse_vec(lines).unwrap();
     /// ```
     ///
     /// # Args
-    /// * `lines` - Multiple InfluxDB line protocol lines seperated by a newline
-    pub fn parse_lines(lines: &str) -> Result<Vec<Self>> {
+    /// * `lines` - An array of InfluxDB line protocol lines
+    pub fn parse_vec(lines: Vec<&str>) -> Result<Vec<Self>> {
         let mut parsed_lines: Vec<LineProtocol> = Vec::new();
-        for line in lines.lines() {
+        for line in lines {
             // Ignore comment lines
             if line.starts_with("#") {
+                continue;
+            }
+
+            // Ignore empty lines
+            if line.is_empty() {
                 continue;
             }
 
@@ -238,6 +248,28 @@ impl LineProtocol {
             }
         }
 
+        Ok(parsed_lines)
+    }
+
+    /// Parse multiple lines seprated by a newline (\n)
+    ///
+    /// Empty lines and comment lines are silently ignored
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let lines = vec![
+    ///     "measurement,tag=value field=\"value\"",
+    ///     "measurement,tag=value field=true 1729270461612452700",
+    ///     ...
+    /// ];
+    ///
+    /// let parsed = LineProtocol::parse_lines(lines.join("\n")).unwrap();
+    /// ```
+    ///
+    /// # Args
+    /// * `lines` - Multiple InfluxDB line protocol lines seperated by a newline
+    pub fn parse_lines(lines: &str) -> Result<Vec<Self>> {
+        let parsed_lines = LineProtocol::parse_vec(lines.lines().collect())?;
         Ok(parsed_lines)
     }
 }
