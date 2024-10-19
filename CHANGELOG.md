@@ -13,6 +13,10 @@ All notable changes to this project will be documented in this file.
 - Add code documentation ([91c78c6](https://github.com/sbr075/influxlp-tools-rs/commit/91c78c6f034e319ed26c4acc16e1096490691c69))
 - Update README ([1311dd6](https://github.com/sbr075/influxlp-tools-rs/commit/1311dd6361791a3ad22c62c8859dc2890feb1f9a))
 
+### 🧹 Routine Tasks
+
+- Add apache for dual license ([ef6585b](https://github.com/sbr075/influxlp-tools-rs/commit/ef6585b119cbbe5edaf3342fa56900c2a33f2e39))
+
 ## [0.1.3] - 2024-10-19
 
 ### 🚀 Features
