@@ -33,8 +33,6 @@ impl Display for Measurement {
 }
 
 impl Format for Measurement {
-    // Characters that need to be escaped
-    // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
     fn escape(&self) -> Self {
         Measurement(self.0.replace(" ", r"\ ").replace(",", r"\,"))
     }
@@ -81,8 +79,6 @@ impl Convert for TagKey {
 }
 
 impl Format for TagKey {
-    // Characters that need to be escaped
-    // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
     fn escape(&self) -> Self {
         TagKey(
             self.0
@@ -139,8 +135,6 @@ impl Convert for TagValue {
 }
 
 impl Format for TagValue {
-    // Characters that need to be escaped
-    // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
     fn escape(&self) -> Self {
         TagValue(
             self.0
@@ -197,8 +191,6 @@ impl Convert for FieldKey {
 }
 
 impl Format for FieldKey {
-    // Characters that need to be escaped
-    // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
     fn escape(&self) -> Self {
         FieldKey(
             self.0
@@ -383,8 +375,6 @@ impl Convert for FieldValue {
 }
 
 impl Format for FieldValue {
-    // Characters that need to be escaped
-    // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
     fn escape(&self) -> Self {
         match self {
             FieldValue::String(string) => {
