@@ -41,6 +41,9 @@ pub enum ParseError {
     #[error("line cannot be empty")]
     EmptyLine,
 
+    #[error("measurement name cannot be empty")]
+    MissingMeasurement,
+
     #[error("atleast one field is required")]
     MissingFields,
 

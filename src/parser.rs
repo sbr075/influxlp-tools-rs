@@ -84,6 +84,11 @@ impl LineProtocol {
         }
 
         // Push whatever is left
+        if word.is_empty() {
+            return Err(
+                ParseError::InvalidSet("set contains uneven amount of values".into()).into(),
+            );
+        }
         words.push(word);
 
         // If we don't have an even number of words the given set is invalid
@@ -128,6 +133,9 @@ impl LineProtocol {
             measurement.push(char);
         }
 
+        if measurement.is_empty() {
+            return Err(ParseError::MissingMeasurement.into());
+        }
         let measurement = Measurement::from(measurement).unescape();
 
         let tag_set = chars.collect::<String>();
@@ -145,7 +153,7 @@ impl LineProtocol {
     /// and rebuilding
     ///
     /// # Example
-    /// ```rust,ignore
+    /// ```rust
     /// let line = "measurement,tag=value field=true 1729270461612452700"
     /// let parsed_line = LineProtocol::parse_line(line).unwrap();
     ///
@@ -214,7 +222,7 @@ impl LineProtocol {
     /// Empty lines and comment lines are silently ignored
     ///
     /// # Example
-    /// ```rust,ignore
+    /// ```rust
     /// let lines = vec![
     ///     "measurement,tag=value field=\"value\"",
     ///     "measurement,tag=value field=true 1729270461612452700",
@@ -256,7 +264,7 @@ impl LineProtocol {
     /// Empty lines and comment lines are silently ignored
     ///
     /// # Example
-    /// ```rust,ignore
+    /// ```rust
     /// let lines = vec![
     ///     "measurement,tag=value field=\"value\"",
     ///     "measurement,tag=value field=true 1729270461612452700",
@@ -279,31 +287,101 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_line_protocol_parser_measurement_name() {
-        let line = "some\\,\\ name,tag=value field=\"value\" 1729270461612452700";
-        let result = LineProtocol::parse_line(line);
-        assert!(result.is_ok())
+    fn test_parser_valid_missing_tags() {
+        let line = "measurement field=\"value\" 1729270461612452700";
+        let result = LineProtocol::parse_line(&line);
+        assert!(result.is_ok());
+
+        let parsed = result.unwrap();
+        let expected = LineProtocol::new("measurement")
+            .add_field("field", "value")
+            .with_timestamp(1729270461612452700i64);
+        assert_eq!(parsed, expected)
     }
 
     #[test]
-    fn test_line_protocol_parser_ok() {
-        let line = "measurement,tag2=value,tag=value field=\"value\",field2=\"{\\\"test\\\": \
-                    \\\"hello\\\"}\" 1729270461612452700";
-        let result = LineProtocol::parse_line(line);
-        assert!(result.is_ok())
+    fn test_parser_valid_missing_timestamp() {
+        let line = "measurement,tag=value field=\"value\"";
+        let result = LineProtocol::parse_line(&line);
+        assert!(result.is_ok());
+
+        let parsed = result.unwrap();
+        let expected = LineProtocol::new("measurement")
+            .add_tag("tag", "value")
+            .add_field("field", "value");
+        assert_eq!(parsed, expected)
     }
 
     #[test]
-    fn test_line_protocol_parser_lines() {
-        let lines = vec![
-            "measurement,tag=value field=\"value\",field2=true",
-            "measurement field=\"{\\\"test\\\": \\\"hello\\\"}\"",
-            "measurement,tag2=value,tag=value field=\"value\",field2=\"{\\\"test\\\": \
-             \\\"hello\\\"}\" 1729270461612452700",
-        ]
-        .join("\n");
+    fn test_parser_valid() {
+        let line = "measurement,tag1=value,tag2=value field1=\"value\",field2=\"{\\\"foo\\\": \
+                    \\\"bar\\\"}\",field3=\"[\\\"hello\\\", \
+                    \\\"world\\\"]\",field4=true,field5=10,field6=10i,field7=0.5 \
+                    1729270461612452700";
+        let result = LineProtocol::parse_line(&line);
+        assert!(result.is_ok());
 
-        let result = LineProtocol::parse_lines(&lines);
-        assert!(result.is_ok())
+        let parsed = result.unwrap();
+        let expected = LineProtocol::new("measurement")
+            .add_tag("tag1", "value")
+            .add_tag("tag2", "value")
+            .add_field("field", "value")
+            .add_field("field2", "{\"foo\": \"bar\"}")
+            .add_field("field3", "[\"hello\", \"world\"]")
+            .add_field("field4", true)
+            .add_field("field5", 10.0)
+            .add_field("field6", 10)
+            .add_field("field7", 0.5)
+            .with_timestamp(1729270461612452700i64);
+        assert_eq!(parsed, expected)
+    }
+
+    #[test]
+    fn test_parser_comment_line_is_err() {
+        let line = "# this is a comment line";
+        let result = LineProtocol::parse_line(&line);
+        assert!(result.is_err())
+    }
+
+    #[test]
+    fn test_parser_empty_line_is_err() {
+        let line = "";
+        let result = LineProtocol::parse_line(&line);
+        assert!(result.is_err())
+    }
+
+    #[test]
+    fn test_parser_missing_measurement_is_err() {
+        let line = ",tag=value field=\"value\"";
+        let result = LineProtocol::parse_line(&line);
+        assert!(result.is_err())
+    }
+
+    #[test]
+    fn test_parser_missing_field_set_is_err() {
+        let line = "measurement,tag=value 1729270461612452800";
+        let result = LineProtocol::parse_line(&line);
+        assert!(result.is_err())
+    }
+
+    #[test]
+    fn test_parser_missing_uneven_tag_set_is_err() {
+        let line = "measurement,tag= 1729270461612452800";
+        let result = LineProtocol::parse_line(&line);
+        assert!(result.is_err())
+    }
+
+    #[test]
+    fn test_parser_missing_uneven_field_set_is_err() {
+        let line = "measurement field= 1729270461612452800";
+        let result = LineProtocol::parse_line(&line);
+        assert!(result.is_err())
+    }
+
+    #[test]
+    fn test_parser_missing_invalid_timestamp_is_err() {
+        let line = "measurement field=\"value\" timestamp";
+        let result = LineProtocol::parse_line(&line);
+        assert!(result.is_err())
     }
 }

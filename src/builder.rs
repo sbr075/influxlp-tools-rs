@@ -30,9 +30,8 @@ impl LineProtocol {
     /// Overwrite the measurement name with a new name
     ///
     /// # Example
-    /// ```rust,ignore
-    /// let mut line_protocol = LineProtocol::new("measurement")
-    ///     .add_field("key", "value");
+    /// ```rust
+    /// let mut line_protocol = LineProtocol::new("measurement").add_field("key", "value");
     ///
     /// line_protocol = line_protocol.measurement("new_measurement");
     /// ```
@@ -51,9 +50,8 @@ impl LineProtocol {
     /// Overwrite the measurement name with a new name
     ///
     /// # Example
-    /// ```rust,ignore
-    /// let mut line_protocol = LineProtocol::new("measurement")
-    ///     .add_field("key", "value");
+    /// ```rust
+    /// let mut line_protocol = LineProtocol::new("measurement").add_field("key", "value");
     ///
     /// line_protocol.measurement_ref("new_measurement");
     /// ```
@@ -73,9 +71,8 @@ impl LineProtocol {
     /// This function is useful if you want to follow a builder pattern
     ///
     /// # Example
-    /// ```rust,ignore
-    /// let line_protocol = LineProtocol::new("measurement")
-    ///     .add_tag("key", "value");
+    /// ```rust
+    /// let line_protocol = LineProtocol::new("measurement").add_tag("key", "value");
     /// ```
     ///
     /// # Args
@@ -99,7 +96,7 @@ impl LineProtocol {
     /// This function is useful if you want to build a data point dynamically
     ///
     /// # Example
-    /// ```rust,ignore
+    /// ```rust
     /// let line_protocol = LineProtocol::new("measurement");
     ///
     /// for (key, value) in tags {
@@ -150,9 +147,8 @@ impl LineProtocol {
     /// This function is useful if you want to follow a builder pattern
     ///
     /// # Example
-    /// ```rust,ignore
-    /// let line_protocol = LineProtocol::new("measurement")
-    ///     .add_field("key", "value");
+    /// ```rust
+    /// let line_protocol = LineProtocol::new("measurement").add_field("key", "value");
     /// ```
     ///
     /// # Args
@@ -174,7 +170,7 @@ impl LineProtocol {
     /// This function is useful if you want to build a data point dynamically
     ///
     /// # Example
-    /// ```rust,ignore
+    /// ```rust
     /// let line_protocol = LineProtocol::new("measurement");
     ///
     /// for (key, value) in fields {
@@ -226,7 +222,7 @@ impl LineProtocol {
     /// precision it needs to be explicitly set when making the query
     ///
     /// # Example
-    /// ```rust,ignore
+    /// ```rust
     /// let line_protocol = LineProtocol::new("measurement");
     ///     .with_timestamp(1729270461612452700i64);
     /// ```
@@ -249,7 +245,7 @@ impl LineProtocol {
     /// precision it needs to be explicitly set when making the query
     ///
     /// # Example
-    /// ```rust,ignore
+    /// ```rust
     /// let line_protocol = LineProtocol::new("measurement");
     /// line_protocol.with_timestamp_ref(1729270461612452700i64);
     /// ```
@@ -266,7 +262,7 @@ impl LineProtocol {
     /// Delete the set timestamp
     ///
     /// # Example
-    /// ```rust,ignore
+    /// ```rust
     /// let mut line_protocol = LineProtocol::new("measurement")
     ///     .add_field("key", "value")
     ///     .with_timestamp_ref(1729270461612452700i64);
@@ -281,7 +277,7 @@ impl LineProtocol {
     /// Delete the set timestamp
     ///
     /// # Example
-    /// ```rust,ignore
+    /// ```rust
     /// let mut line_protocol = LineProtocol::new("measurement")
     ///     .add_field("key", "value")
     ///     .with_timestamp_ref(1729270461612452700i64);
@@ -358,6 +354,7 @@ impl LineProtocol {
             return Err(BuilderError::MissingFields.into());
         }
 
+        formatted_fields.sort();
         line_protocol = format!("{line_protocol} {}", formatted_fields.join(","));
 
         if let Some(timestamp) = self.timestamp {
@@ -373,60 +370,111 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_line_protocol_builder_ok() {
-        let line_protocol = LineProtocol::new("measurement")
-            .add_tag("tag", "value")
+    fn test_builder_valid_missing_tags() {
+        let result = LineProtocol::new("measurement")
             .add_field("field", "value")
-            .build();
-        assert!(line_protocol.is_ok());
-
-        let line_protocol = LineProtocol::new("measurement")
-            .add_field("field", "{\"test\": \"hello\"}")
-            .build();
-        assert!(line_protocol.is_ok());
-
-        let line_protocol = LineProtocol::new("measurement")
-            .add_tag("tag", "value")
-            .add_tag("tag2", "value")
-            .add_field("field", "value")
-            .add_field("field2", "{\"test\": \"hello\"}")
             .with_timestamp(1729270461612452700i64)
             .build();
-        assert!(line_protocol.is_ok());
+        assert!(result.is_ok());
+
+        let line = result.unwrap();
+        assert_eq!(line, "measurement field=\"value\" 1729270461612452700")
     }
 
     #[test]
-    fn test_line_protocol_builder_missing_field() {
-        let line_protocol = LineProtocol::new("measurement")
-            .add_tag("tag", "value")
+    fn test_builder_valid() {
+        let result = LineProtocol::new("measurement")
+            .add_tag("tag1", "value")
+            .add_tag("tag2", "value")
+            .add_field("field1", "value")
+            .add_field("field2", "{\"foo\": \"bar\"}")
+            .add_field("field3", "[\"hello\", \"world\"]")
+            .add_field("field4", true)
+            .add_field("field5", 10.0)
+            .add_field("field6", 10)
+            .add_field("field7", 0.5)
+            .with_timestamp(1729270461612452700i64)
             .build();
-        assert!(line_protocol.is_err());
+        assert!(result.is_ok());
+
+        let line = result.unwrap();
+        assert_eq!(
+            line,
+            "measurement,tag1=value,tag2=value field1=\"value\",field2=\"{\\\"foo\\\": \
+             \\\"bar\\\"}\",field3=\"[\\\"hello\\\", \
+             \\\"world\\\"]\",field4=true,field5=10,field6=10i,field7=0.5 1729270461612452700"
+        )
     }
 
     #[test]
-    fn test_line_protocol_builder_invalid_measurement() {
-        let line_protocol = LineProtocol::new("_measurement")
-            .add_tag("tag", "value")
+    fn test_builder_missing_field_is_err() {
+        let result = LineProtocol::new("measurement").build();
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_builder_empty_measurement_is_err() {
+        let result = LineProtocol::new("").add_field("field", "value").build();
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_builder_invalid_measurement_is_err() {
+        let result = LineProtocol::new("_measurement")
             .add_field("field", "value")
             .build();
-        assert!(line_protocol.is_err());
+        assert!(result.is_err());
     }
 
     #[test]
-    fn test_line_protocol_builder_invalid_tag_key() {
-        let line_protocol = LineProtocol::new("measurement")
+    fn test_builder_empty_tag_key_is_err() {
+        let result = LineProtocol::new("measurement")
+            .add_tag("", "value")
+            .add_field("field", "value")
+            .build();
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_builder_invalid_tag_key_is_err() {
+        let result = LineProtocol::new("measurement")
             .add_tag("_tag", "value")
             .add_field("field", "value")
             .build();
-        assert!(line_protocol.is_err());
+        assert!(result.is_err());
     }
 
     #[test]
-    fn test_line_protocol_builder_invalid_field_key() {
-        let line_protocol = LineProtocol::new("measurement")
+    fn test_builder_empty_tag_value_is_err() {
+        let result = LineProtocol::new("measurement")
+            .add_tag("key", "")
+            .add_field("field", "value")
+            .build();
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_builder_empty_field_key_is_err() {
+        let result = LineProtocol::new("measurement")
+            .add_field("", "value")
+            .build();
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_builder_invalid_field_key_is_err() {
+        let result = LineProtocol::new("measurement")
             .add_tag("tag", "value")
             .add_field("_field", "value")
             .build();
-        assert!(line_protocol.is_err());
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_builder_empty_field_value_is_err() {
+        let result = LineProtocol::new("measurement")
+            .add_field("field", "")
+            .build();
+        assert!(result.is_err());
     }
 }

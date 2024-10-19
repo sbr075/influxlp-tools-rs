@@ -34,16 +34,19 @@ pub struct LineProtocol {
 impl PartialEq for LineProtocol {
     fn eq(&self, other: &Self) -> bool {
         if self.measurement != other.measurement {
+            println!("name not equal");
             return false;
         }
 
         let tags_matches = match (&self.tags, &other.tags) {
             (Some(tags1), Some(tags2)) => tags1 == tags2,
+            (None, None) => true,
             _ => return false,
         };
 
         let timestamp_matches = match (self.timestamp, other.timestamp) {
             (Some(ts1), Some(ts2)) => ts1 == ts2,
+            (None, None) => true,
             _ => return false,
         };
 
