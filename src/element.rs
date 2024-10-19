@@ -326,6 +326,12 @@ impl Display for FieldValue {
     }
 }
 
+impl PartialEq for FieldValue {
+    fn eq(&self, other: &Self) -> bool {
+        self.to_string() == other.to_string()
+    }
+}
+
 impl Convert for FieldValue {
     fn parse(s: &str) -> anyhow::Result<Self>
     where
@@ -340,14 +346,14 @@ impl Convert for FieldValue {
 
             let value = match number.starts_with("-") {
                 true => {
-                    let int = s
+                    let int = number
                         .parse::<i64>()
                         .with_context(|| format!("number {s} is not a valid integer"))?;
 
                     FieldValue::Integer(int)
                 }
                 false => {
-                    let uint = s
+                    let uint = number
                         .parse::<u64>()
                         .with_context(|| format!("number {s} is not a valid unsigned integer"))?;
 
@@ -396,5 +402,112 @@ impl Format for FieldValue {
             }
             other => other.clone(),
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_tag_key_escape_unescape() {
+        let key = TagKey::from("some, value=");
+        let escaped_key = key.escape();
+
+        assert_eq!(escaped_key.to_string(), "some\\,\\ value\\=");
+
+        let unescaped_key = escaped_key.unescape();
+        assert_eq!(unescaped_key.to_string(), "some, value=");
+    }
+
+    #[test]
+    fn test_tag_value_escape_unescape() {
+        let value = TagValue::from("some, value=");
+        let escaped_value = value.escape();
+
+        assert_eq!(escaped_value.to_string(), "some\\,\\ value\\=");
+
+        let unescaped_value = escaped_value.unescape();
+        assert_eq!(unescaped_value.to_string(), "some, value=");
+    }
+
+    #[test]
+    fn test_field_key_escape_unescape() {
+        let key = FieldKey::from("some, value=");
+        let escaped_key = key.escape();
+
+        assert_eq!(escaped_key.to_string(), "some\\,\\ value\\=");
+
+        let unescaped_key = escaped_key.unescape();
+        assert_eq!(unescaped_key.to_string(), "some, value=");
+    }
+
+    #[test]
+    fn test_field_value_escape_unescape() {
+        // Only strings are escaped, every other value is as is
+        let value = FieldValue::from("{\"foo\": [\"bar=\\baz\"]}");
+        let escaped_value = value.escape();
+
+        assert_eq!(
+            escaped_value.to_string(),
+            "\"{\\\"foo\\\": [\\\"bar=\\\\baz\\\"]}\""
+        );
+
+        let unescaped_value = escaped_value.unescape();
+        assert_eq!(unescaped_value.to_string(), "{\"foo\": [\"bar=\\baz\"]}");
+    }
+
+    #[test]
+    fn test_field_value_parse_float() {
+        let parsed = FieldValue::parse("10.0").unwrap();
+        let expected = FieldValue::Float(10.);
+        assert_eq!(parsed, expected)
+    }
+
+    #[test]
+    fn test_field_value_parse_signed_integer() {
+        let parsed = FieldValue::parse("-10i").unwrap();
+        let expected = FieldValue::Integer(-10);
+        assert_eq!(parsed, expected);
+
+        let parsed = FieldValue::parse("10i").unwrap();
+        let expected = FieldValue::Integer(10);
+        assert_eq!(parsed, expected)
+    }
+
+    #[test]
+    fn test_field_value_parse_unsigned_integer() {
+        // Only if a number cannot fit in an i64 it will parsed into a u64
+        let parsed = FieldValue::parse("9223372036854775808i").unwrap();
+        let expected = FieldValue::UInteger(9223372036854775808);
+        assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn test_field_value_parse_boolean() {
+        let true_variants = vec!["t", "T", "true", "True", "TRUE"];
+        for variant in true_variants {
+            let parsed = FieldValue::parse(variant).unwrap();
+            let expected = FieldValue::Boolean(true);
+            assert_eq!(parsed, expected);
+        }
+
+        let false_variants = vec!["f", "F", "false", "False", "FALSE"];
+        for variant in false_variants {
+            let parsed = FieldValue::parse(variant).unwrap();
+            let expected = FieldValue::Boolean(false);
+            assert_eq!(parsed, expected);
+        }
+    }
+
+    #[test]
+    fn test_field_value_display() {
+        assert_eq!(FieldValue::Float(10.0).to_string(), "10");
+        assert_eq!(FieldValue::Float(10.5).to_string(), "10.5");
+        assert_eq!(FieldValue::Integer(10).to_string(), "10i");
+        assert_eq!(FieldValue::UInteger(10).to_string(), "10i");
+        assert_eq!(FieldValue::String("hello".to_string()).to_string(), "hello");
+        assert_eq!(FieldValue::Boolean(true).to_string(), "true");
+        assert_eq!(FieldValue::Boolean(false).to_string(), "false");
     }
 }
