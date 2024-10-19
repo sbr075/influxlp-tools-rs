@@ -125,4 +125,9 @@ If you discover any issues to be fixed or features you'd like to be introduced y
 
 ## License
 
-This project is licensed under the [MIT License](https://opensource.org/license/MIT)
+This project is licensed under either of
+
+* [MIT License](LICENSE-MIT)
+* [APACHE License](LICENSE-APACHE)
+
+at your option.
