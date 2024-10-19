@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.0] - 2024-10-19
+## [unreleased]
 
 ### 🚀 Features
 
@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 ### 🧹 Routine Tasks
 
 - Add apache for dual license ([ef6585b](https://github.com/sbr075/influxlp-tools-rs/commit/ef6585b119cbbe5edaf3342fa56900c2a33f2e39))
+- Bump version from 0.1.3 to 0.2.0 ([d1165a4](https://github.com/sbr075/influxlp-tools-rs/commit/d1165a4e4451add9ad63fa731ae40cc5852aa038))
 
 ## [0.1.3] - 2024-10-19
 
