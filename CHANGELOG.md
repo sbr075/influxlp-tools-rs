@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 📚 Documentation
+
+- Add code documentation ([91c78c6](https://github.com/sbr075/influxlp-tools-rs/commit/91c78c6f034e319ed26c4acc16e1096490691c69))
+- Update README ([1311dd6](https://github.com/sbr075/influxlp-tools-rs/commit/1311dd6361791a3ad22c62c8859dc2890feb1f9a))
+
 ## [0.1.3] - 2024-10-19
 
 ### 🚀 Features
