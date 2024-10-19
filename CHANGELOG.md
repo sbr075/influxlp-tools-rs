@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 📚 Documentation
+
+- Add rustdoc documentation ([02a0377](https://github.com/sbr075/influxlp-tools-rs/commit/02a0377b1a567b2f8349bb5d0f02a9f91d619581))
+
+### 🧹 Routine Tasks
+
+- Bump version from 0.2.0 to 0.2.1 ([556cee7](https://github.com/sbr075/influxlp-tools-rs/commit/556cee71f55fb3efe697abceafcd2ef4f21bc377))
+
 ## [0.2.0] - 2024-10-19
 
 ### 🚀 Features
