@@ -19,8 +19,6 @@ impl LineProtocol {
         // Parse the measurement name
         let mut part = String::new();
         while let Some(char) = chars.next() {
-            part.push(char);
-
             // If the current character is a \ (slash) then we know the next character must
             // be escaped
             if char == '\\' {
@@ -38,6 +36,8 @@ impl LineProtocol {
                 // We've gone past the escaped character
                 is_escaped = false;
             }
+
+            part.push(char);
         }
 
         part.trim().to_string()
@@ -97,11 +97,44 @@ impl LineProtocol {
                 let key: K = c[0].clone().into();
                 let value: V = c[1].clone().into();
 
-                (key.unescape().into(), value.unescape().into())
+                (key.unescape(), value.unescape())
             })
             .collect();
 
         Ok(unescape)
+    }
+
+    /// Splits the string on the first non-escaped comma
+    fn parse_identifiers(
+        input: String,
+    ) -> Result<(Measurement, Option<HashMap<TagKey, TagValue>>)> {
+        let mut chars = input.chars();
+        let mut is_escaped = false;
+
+        let mut measurement = String::new();
+        while let Some(char) = chars.next() {
+            // If the current character is a \ (slash) then we know the next character must
+            // be escaped
+            if char == '\\' {
+                is_escaped = true;
+            } else if char == ',' && !is_escaped {
+                break;
+            } else {
+                is_escaped = false;
+            }
+
+            measurement.push(char);
+        }
+
+        let measurement = Measurement::from(measurement).unescape();
+
+        let tag_set = chars.collect::<String>();
+        let tags = match !tag_set.is_empty() {
+            true => Some(LineProtocol::parse_set::<TagKey, TagValue>(&tag_set)?),
+            false => None,
+        };
+
+        Ok((measurement, tags))
     }
 
     pub fn parse_line(line: &str) -> Result<Self> {
@@ -118,14 +151,7 @@ impl LineProtocol {
 
         // Parse measurement and tags
         let identifiers = LineProtocol::parse_part(&mut chars);
-        let (measurement, tags) = match identifiers.split_once(",") {
-            Some((measurement, tag_set)) => {
-                let tags = LineProtocol::parse_set::<TagKey, TagValue>(tag_set)?;
-
-                (measurement.to_string(), Some(tags))
-            }
-            None => (identifiers, None),
-        };
+        let (measurement, tags) = LineProtocol::parse_identifiers(identifiers)?;
 
         // Parse field set
         let field_set = LineProtocol::parse_part(&mut chars);
@@ -181,6 +207,13 @@ impl LineProtocol {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_line_protocol_parser_measurement_name() {
+        let line = "some\\,\\ name,tag=value field=\"value\" 1729270461612452700";
+        let result = LineProtocol::parse_line(line);
+        assert!(result.is_ok())
+    }
 
     #[test]
     fn test_line_protocol_parser_ok() {
