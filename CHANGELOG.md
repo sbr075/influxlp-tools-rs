@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 🐛 Bug Fixes
+
+- Fix licenses in cargo toml ([81ba84b](https://github.com/sbr075/influxlp-tools-rs/commit/81ba84bc07521c7d323fabb3c5a1771d3b825477))
+
 ## [0.2.1] - 2024-10-19
 
 ### 📚 Documentation
