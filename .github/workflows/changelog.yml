@@ -14,9 +14,9 @@ on:
         type: string
         default: ''
     secrets:
-      CHANGELOG_APPID:
+      CHANGELOG_APP_ID:
         required: true
-      CHANGELOG_SECRET:
+      CHANGELOG_APP_KEY:
         required: true
 
 jobs:
