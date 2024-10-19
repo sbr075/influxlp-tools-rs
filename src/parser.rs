@@ -4,7 +4,7 @@ use crate::error::{ParseError, Result};
 
 use crate::{
     element::{FieldKey, FieldValue, Measurement, TagKey, TagValue},
-    traits::Format,
+    traits::{Convert, Format},
     LineProtocol,
 };
 
@@ -45,8 +45,8 @@ impl LineProtocol {
 
     fn parse_set<K, V>(set: &str) -> Result<HashMap<K, V>>
     where
-        K: Format + From<String> + Hash + PartialEq + Eq,
-        V: Format + From<String>,
+        K: Format + Convert + Hash + PartialEq + Eq,
+        V: Format + Convert,
     {
         let mut in_quote = false;
         let mut is_escaped = false;
@@ -91,17 +91,16 @@ impl LineProtocol {
         }
 
         // Transform to a hashmap and unescape words
-        let unescape: HashMap<K, V> = words
-            .chunks_exact(2)
-            .map(|c| {
-                let key: K = c[0].clone().into();
-                let value: V = c[1].clone().into();
+        let mut set = HashMap::new();
+        for word in words.chunks_exact(2) {
+            // Only FieldValue can actually return an error
+            let key = K::parse(&word[0]).map_err(|e| ParseError::InvalidSet(e.into()))?;
+            let value = V::parse(&word[1]).map_err(|e| ParseError::InvalidSet(e.into()))?;
 
-                (key.unescape(), value.unescape())
-            })
-            .collect();
+            set.insert(key, value);
+        }
 
-        Ok(unescape)
+        Ok(set)
     }
 
     /// Splits the string on the first non-escaped comma
@@ -234,6 +233,6 @@ mod test {
         .join("\n");
 
         let result = LineProtocol::parse_lines(&lines);
-        assert!(result.is_ok());
+        assert!(result.is_ok())
     }
 }

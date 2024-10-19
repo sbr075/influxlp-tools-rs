@@ -1,9 +1,9 @@
-use std::{fmt::Display, str::FromStr};
+use std::fmt::Display;
 
 use anyhow::Context;
 use regex::Regex;
 
-use crate::traits::Format;
+use crate::traits::{Convert, Format};
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct Measurement(pub String);
@@ -71,6 +71,15 @@ impl Display for TagKey {
     }
 }
 
+impl Convert for TagKey {
+    fn parse(s: &str) -> anyhow::Result<Self>
+    where
+        Self: Sized,
+    {
+        Ok(TagKey(s.to_string()))
+    }
+}
+
 impl Format for TagKey {
     // Characters that need to be escaped
     // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
@@ -117,6 +126,15 @@ impl From<String> for TagValue {
 impl Display for TagValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+
+impl Convert for TagValue {
+    fn parse(s: &str) -> anyhow::Result<Self>
+    where
+        Self: Sized,
+    {
+        Ok(TagValue(s.to_string()))
     }
 }
 
@@ -169,6 +187,15 @@ impl Display for FieldKey {
     }
 }
 
+impl Convert for FieldKey {
+    fn parse(s: &str) -> anyhow::Result<Self>
+    where
+        Self: Sized,
+    {
+        Ok(FieldKey(s.to_string()))
+    }
+}
+
 impl Format for FieldKey {
     // Characters that need to be escaped
     // https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters
@@ -211,28 +238,19 @@ pub enum FieldValue {
 
 impl From<&str> for FieldValue {
     fn from(value: &str) -> Self {
-        match FieldValue::from_str(value) {
-            Ok(value) => value,
-            Err(_) => FieldValue::String(value.to_owned()),
-        }
+        FieldValue::String(value.to_owned())
     }
 }
 
 impl From<&String> for FieldValue {
     fn from(value: &String) -> Self {
-        match FieldValue::from_str(value) {
-            Ok(value) => value,
-            Err(_) => FieldValue::String(value.to_owned()),
-        }
+        FieldValue::String(value.to_owned())
     }
 }
 
 impl From<String> for FieldValue {
     fn from(value: String) -> Self {
-        match FieldValue::from_str(&value) {
-            Ok(value) => value,
-            Err(_) => FieldValue::String(value),
-        }
+        FieldValue::String(value)
     }
 }
 
@@ -316,10 +334,11 @@ impl Display for FieldValue {
     }
 }
 
-impl FromStr for FieldValue {
-    type Err = anyhow::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+impl Convert for FieldValue {
+    fn parse(s: &str) -> anyhow::Result<Self>
+    where
+        Self: Sized,
+    {
         // Check if string is a number that ends with an i
         let re = Regex::new(r"^-?\d+i$").unwrap();
         if re.is_match(s) {
