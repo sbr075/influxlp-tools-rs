@@ -65,6 +65,26 @@ impl Display for LineProtocol {
 }
 
 impl LineProtocol {
+    /// Get a cloned version of the measurement
+    pub fn get_measurement(&self) -> Measurement {
+        self.measurement.clone()
+    }
+
+    /// Get a reference of the measurement
+    pub fn get_measurement_ref(&self) -> &Measurement {
+        &self.measurement
+    }
+
+    /// Get a mutable reference of the measurement
+    pub fn get_measurement_mut(&mut self) -> &mut Measurement {
+        &mut self.measurement
+    }
+
+    /// Get the tag value associated with the provided tag key
+    ///
+    /// # Args
+    /// * `key` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#special-characters)
+    ///   tag key
     pub fn get_tag<K>(&self, key: K) -> Option<TagValue>
     where
         K: Into<TagKey>,
@@ -75,10 +95,87 @@ impl LineProtocol {
         }
     }
 
+    /// Get a reference to the tag value associated with the provided tag key
+    ///
+    /// # Args
+    /// * `key` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#special-characters)
+    ///   tag key
+    pub fn get_tag_ref<K>(&self, key: K) -> Option<&TagValue>
+    where
+        K: Into<TagKey>,
+    {
+        match &self.tags {
+            Some(tags) => tags.get(&key.into()),
+            None => None,
+        }
+    }
+
+    /// Get a mutable reference to the tag value associated with the provided
+    /// tag key
+    ///
+    /// # Args
+    /// * `key` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#special-characters)
+    ///   tag key
+    pub fn get_tag_mut<K>(&mut self, key: K) -> Option<&mut TagValue>
+    where
+        K: Into<TagKey>,
+    {
+        match &mut self.tags {
+            Some(tags) => tags.get_mut(&key.into()),
+            None => None,
+        }
+    }
+
+    /// Get the field value associated with the provided field key
+    ///
+    /// # Args
+    /// * `key` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#special-characters)
+    ///   field key
     pub fn get_field<K>(&self, key: K) -> Option<FieldValue>
     where
         K: Into<FieldKey>,
     {
         self.fields.get(&key.into()).cloned()
+    }
+
+    /// Get a reference to the field value associated with the provided field
+    /// key
+    ///
+    /// # Args
+    /// * `key` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#special-characters)
+    ///   field key
+    pub fn get_field_ref<K>(&self, key: K) -> Option<&FieldValue>
+    where
+        K: Into<FieldKey>,
+    {
+        self.fields.get(&key.into())
+    }
+
+    /// Get a mutable reference to the field value associated with the provided
+    /// field key
+    ///
+    /// # Args
+    /// * `key` - A [valid](https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#special-characters)
+    ///   field key
+    pub fn get_field_mut<K>(&mut self, key: K) -> Option<&mut FieldValue>
+    where
+        K: Into<FieldKey>,
+    {
+        self.fields.get_mut(&key.into())
+    }
+
+    /// Get a cloned version of the timestamp
+    pub fn get_timestamp(&self) -> Option<i64> {
+        self.timestamp
+    }
+
+    /// Get a reference of the timestamp
+    pub fn get_timestamp_ref(&self) -> Option<&i64> {
+        self.timestamp.as_ref()
+    }
+
+    /// Get a mutable reference of the timestamp
+    pub fn get_timestamp_mut(&mut self) -> Option<&mut i64> {
+        self.timestamp.as_mut()
     }
 }
