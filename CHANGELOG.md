@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 🚀 Features
+
+- [**breaking**] Add parse_from parse_into methods for elements ([63d00ec](https://github.com/sbr075/influxlp-tools-rs/commit/63d00ecc46652ffb48de71bd97785af88cad09b0))
+
+### 🐛 Bug Fixes
+
+- Add sync send trait to error ([c2ef9ad](https://github.com/sbr075/influxlp-tools-rs/commit/c2ef9ad886530f3f9b5196262d55ebe7b8c6d49f))
+
 ## [0.2.2] - 2024-10-19
 
 ### 🐛 Bug Fixes
