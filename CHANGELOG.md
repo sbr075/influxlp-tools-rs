@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.3] - 2024-10-21
+## [unreleased]
 
 ### 🚀 Features
 
@@ -15,6 +15,10 @@ All notable changes to this project will be documented in this file.
 ### 📚 Documentation
 
 - Fix spelling mistake in README ([dc175ca](https://github.com/sbr075/influxlp-tools-rs/commit/dc175cab43450c32671a2368004a57b2826bd200))
+
+### 🧹 Routine Tasks
+
+- Bump version from 0.2.2 to 0.2.3 ([e071fe0](https://github.com/sbr075/influxlp-tools-rs/commit/e071fe041c9e434a82d59d371bb18aa14569cfa5))
 
 ## [0.2.2] - 2024-10-19
 
