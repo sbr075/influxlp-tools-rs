@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 ### 📚 Documentation
 
 - Fix spelling mistake in README ([dc175ca](https://github.com/sbr075/influxlp-tools-rs/commit/dc175cab43450c32671a2368004a57b2826bd200))
+- Add build and release status badge ([5646578](https://github.com/sbr075/influxlp-tools-rs/commit/5646578c3d6fb7a868419e7a2c789347c25446b1))
 
 ### 🧹 Routine Tasks
 
