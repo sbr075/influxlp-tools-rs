@@ -1,9 +1,12 @@
 # InfluxDB V2 Line Protocol Tools
 
+[![Build and release workflow][build-image]][build]
 [![Influx line protocol tools on crates.io][crates.io-image]][crates.io]
 
 ---
 
+[build-image]: https://github.com/sbr075/influxlp-tools-rs/actions/workflows/release.yml/badge.svg
+[build]: https://github.com/sbr075/influxlp-tools-rs/actions/workflows/release.yml
 [crates.io-image]: https://img.shields.io/badge/crates.io-influxlp--tools-orange
 [crates.io]: https://crates.io/crates/influxlp-tools
 
