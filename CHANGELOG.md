@@ -12,6 +12,10 @@ All notable changes to this project will be documented in this file.
 
 - Add sync send trait to error ([c2ef9ad](https://github.com/sbr075/influxlp-tools-rs/commit/c2ef9ad886530f3f9b5196262d55ebe7b8c6d49f))
 
+### 📚 Documentation
+
+- Fix spelling mistake in README ([dc175ca](https://github.com/sbr075/influxlp-tools-rs/commit/dc175cab43450c32671a2368004a57b2826bd200))
+
 ## [0.2.2] - 2024-10-19
 
 ### 🐛 Bug Fixes
