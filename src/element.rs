@@ -14,7 +14,7 @@
 //! - field set: Required key value pairs containing the data point data
 //! - timestamp: Optional unix timestamp
 
-use std::fmt::Display;
+use std::{fmt::Display, str::FromStr};
 
 use anyhow::Context;
 use regex::Regex;
@@ -45,6 +45,42 @@ impl From<String> for Measurement {
 impl Display for Measurement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+
+impl Convert for Measurement {
+    /// Attempt to parse a generic type into [Measurement]
+    ///
+    /// This will always work for any generic type that implements the
+    /// `ToString` trait so it can be safely unwrapped
+    ///
+    /// # Example
+    /// ```rust
+    /// let uuid = Uuid::new_v4();
+    /// let measurement = Measurement::parse_from(uuid).unwrap();
+    /// ```
+    fn parse_from<T>(from: T) -> anyhow::Result<Self>
+    where
+        Self: Sized,
+        T: ToString,
+    {
+        Ok(Measurement(from.to_string()))
+    }
+
+    /// Attempt to parse [Measurement] into generic type T
+    ///
+    /// # Example
+    /// ```rust
+    /// let measurement = Measurement::String("d5a47b74-bff6-4dc5-9c7c-2558bd98a70b");
+    /// let uuid = key.parse_into<Uuid>().unwrap();
+    /// ```
+    fn parse_into<T>(&self) -> anyhow::Result<T>
+    where
+        T: FromStr,
+        <T as FromStr>::Err: std::error::Error + Send + Sync + 'static,
+    {
+        let t = self.0.parse::<T>()?;
+        Ok(t)
     }
 }
 
@@ -86,11 +122,38 @@ impl Display for TagKey {
 }
 
 impl Convert for TagKey {
-    fn parse(s: &str) -> anyhow::Result<Self>
+    /// Attempt to parse a generic type into [TagKey]
+    ///
+    /// This will always work for any generic type that implements the
+    /// `ToString` trait so it can be safely unwrapped
+    ///
+    /// # Example
+    /// ```rust
+    /// let uuid = Uuid::new_v4();
+    /// let key = TagKey::parse_from(uuid).unwrap();
+    /// ```
+    fn parse_from<T>(from: T) -> anyhow::Result<Self>
     where
         Self: Sized,
+        T: ToString,
     {
-        Ok(TagKey(s.to_string()))
+        Ok(TagKey(from.to_string()))
+    }
+
+    /// Attempt to parse [TagKey] into generic type T
+    ///
+    /// # Example
+    /// ```rust
+    /// let key = TagKey::String("d5a47b74-bff6-4dc5-9c7c-2558bd98a70b");
+    /// let uuid = key.parse_into<Uuid>().unwrap();
+    /// ```
+    fn parse_into<T>(&self) -> anyhow::Result<T>
+    where
+        T: FromStr,
+        <T as FromStr>::Err: std::error::Error + Send + Sync + 'static,
+    {
+        let t = self.0.parse::<T>()?;
+        Ok(t)
     }
 }
 
@@ -142,11 +205,38 @@ impl Display for TagValue {
 }
 
 impl Convert for TagValue {
-    fn parse(s: &str) -> anyhow::Result<Self>
+    /// Attempt to parse a generic type into [TagValue]
+    ///
+    /// This will always work for any generic type that implements the
+    /// `ToString` trait so it can be safely unwrapped
+    ///
+    /// # Example
+    /// ```rust
+    /// let uuid = Uuid::new_v4();
+    /// let value = TagValue::parse_from(uuid).unwrap();
+    /// ```
+    fn parse_from<T>(from: T) -> anyhow::Result<Self>
     where
         Self: Sized,
+        T: ToString,
     {
-        Ok(TagValue(s.to_string()))
+        Ok(TagValue(from.to_string()))
+    }
+
+    /// Attempt to parse [TagValue] into generic type T
+    ///
+    /// # Example
+    /// ```rust
+    /// let value = TagValue::String("d5a47b74-bff6-4dc5-9c7c-2558bd98a70b");
+    /// let uuid = value.parse_into<Uuid>().unwrap();
+    /// ```
+    fn parse_into<T>(&self) -> anyhow::Result<T>
+    where
+        T: FromStr,
+        <T as FromStr>::Err: std::error::Error + Send + Sync + 'static,
+    {
+        let t = self.0.parse::<T>()?;
+        Ok(t)
     }
 }
 
@@ -198,11 +288,38 @@ impl Display for FieldKey {
 }
 
 impl Convert for FieldKey {
-    fn parse(s: &str) -> anyhow::Result<Self>
+    /// Attempt to parse a generic type into [FieldKey]
+    ///
+    /// This will always work for any generic type that implements the
+    /// `ToString` trait so it can be safely unwrapped
+    ///
+    /// # Example
+    /// ```rust
+    /// let uuid = Uuid::new_v4();
+    /// let key = FieldKey::parse_from(uuid).unwrap();
+    /// ```
+    fn parse_from<T>(from: T) -> anyhow::Result<Self>
     where
         Self: Sized,
+        T: ToString,
     {
-        Ok(FieldKey(s.to_string()))
+        Ok(FieldKey(from.to_string()))
+    }
+
+    /// Attempt to parse [FieldKey] into generic type T
+    ///
+    /// # Example
+    /// ```rust
+    /// let key = FieldKey::String("d5a47b74-bff6-4dc5-9c7c-2558bd98a70b");
+    /// let uuid = key.parse_into<Uuid>().unwrap();
+    /// ```
+    fn parse_into<T>(&self) -> anyhow::Result<T>
+    where
+        T: FromStr,
+        <T as FromStr>::Err: std::error::Error + Send + Sync + 'static,
+    {
+        let t = self.0.parse::<T>()?;
+        Ok(t)
     }
 }
 
@@ -349,13 +466,23 @@ impl PartialEq for FieldValue {
 }
 
 impl Convert for FieldValue {
-    fn parse(s: &str) -> anyhow::Result<Self>
+    /// Attempt to parse a generic type into [FieldValue]
+    ///
+    /// # Example
+    /// ```rust
+    /// let uuid = Uuid::new_v4();
+    /// let value = FieldValue::parse_from(uuid).unwrap();
+    /// ```
+    fn parse_from<T>(from: T) -> anyhow::Result<Self>
     where
         Self: Sized,
+        T: ToString,
     {
+        let s = from.to_string();
+
         // Check if string is a number that ends with an i
         let re = Regex::new(r"^-?\d+i$").unwrap();
-        if re.is_match(s) {
+        if re.is_match(&s) {
             // Remove the `i`
             let mut number = s.to_string();
             number.pop();
@@ -386,13 +513,39 @@ impl Convert for FieldValue {
         }
 
         // Check if its a boolean, else treat as a string
-        let value = match s {
+        let value = match s.as_ref() {
             "t" | "T" | "true" | "True" | "TRUE" => FieldValue::Boolean(true),
             "f" | "F" | "false" | "False" | "FALSE" => FieldValue::Boolean(false),
             _ => FieldValue::String(s.to_string()),
         };
 
         Ok(value)
+    }
+
+    /// Attempt to parse [FieldValue] into generic type T
+    ///
+    /// Note: This only makes sense to do if type is [FieldValue::String]
+    ///
+    /// # Example
+    /// ```rust
+    /// let value = FieldValue::String("d5a47b74-bff6-4dc5-9c7c-2558bd98a70b");
+    /// let uuid = value.parse_into<Uuid>().unwrap();
+    /// ```
+    fn parse_into<T>(&self) -> anyhow::Result<T>
+    where
+        T: FromStr,
+        <T as FromStr>::Err: std::error::Error + Send + Sync + 'static,
+    {
+        let r = match self {
+            FieldValue::Float(number) => number.to_string(),
+            FieldValue::Integer(number) => number.to_string(),
+            FieldValue::UInteger(number) => number.to_string(),
+            FieldValue::String(string) => string.to_string(),
+            FieldValue::Boolean(bool) => bool.to_string(),
+        }
+        .parse::<T>()?;
+
+        Ok(r)
     }
 }
 
@@ -475,18 +628,18 @@ mod test {
 
     #[test]
     fn test_field_value_parse_float() {
-        let parsed = FieldValue::parse("10.0").unwrap();
+        let parsed = FieldValue::parse_from("10.0").unwrap();
         let expected = FieldValue::Float(10.);
         assert_eq!(parsed, expected)
     }
 
     #[test]
     fn test_field_value_parse_signed_integer() {
-        let parsed = FieldValue::parse("-10i").unwrap();
+        let parsed = FieldValue::parse_from("-10i").unwrap();
         let expected = FieldValue::Integer(-10);
         assert_eq!(parsed, expected);
 
-        let parsed = FieldValue::parse("10i").unwrap();
+        let parsed = FieldValue::parse_from("10i").unwrap();
         let expected = FieldValue::Integer(10);
         assert_eq!(parsed, expected)
     }
@@ -494,7 +647,7 @@ mod test {
     #[test]
     fn test_field_value_parse_unsigned_integer() {
         // Only if a number cannot fit in an i64 it will parsed into a u64
-        let parsed = FieldValue::parse("9223372036854775808i").unwrap();
+        let parsed = FieldValue::parse_from("9223372036854775808i").unwrap();
         let expected = FieldValue::UInteger(9223372036854775808);
         assert_eq!(parsed, expected);
     }
@@ -503,14 +656,14 @@ mod test {
     fn test_field_value_parse_boolean() {
         let true_variants = vec!["t", "T", "true", "True", "TRUE"];
         for variant in true_variants {
-            let parsed = FieldValue::parse(variant).unwrap();
+            let parsed = FieldValue::parse_from(variant).unwrap();
             let expected = FieldValue::Boolean(true);
             assert_eq!(parsed, expected);
         }
 
         let false_variants = vec!["f", "F", "false", "False", "FALSE"];
         for variant in false_variants {
-            let parsed = FieldValue::parse(variant).unwrap();
+            let parsed = FieldValue::parse_from(variant).unwrap();
             let expected = FieldValue::Boolean(false);
             assert_eq!(parsed, expected);
         }

@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 pub trait Format {
     /// Escapes [special character](https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/#special-characters) in the string
     fn escape(&self) -> Self;
@@ -7,8 +9,13 @@ pub trait Format {
 }
 
 pub trait Convert {
-    /// Parse a string into this type
-    fn parse(s: &str) -> anyhow::Result<Self>
+    fn parse_from<T>(from: T) -> anyhow::Result<Self>
     where
-        Self: Sized;
+        Self: Sized,
+        T: ToString;
+
+    fn parse_into<T>(&self) -> anyhow::Result<T>
+    where
+        T: FromStr,
+        <T as FromStr>::Err: std::error::Error + Send + Sync + 'static;
 }
