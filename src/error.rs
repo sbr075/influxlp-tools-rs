@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-pub(crate) type BoxError = Box<dyn std::error::Error + 'static>;
+pub(crate) type BoxError = Box<dyn std::error::Error + Send + Sync + 'static>;
 pub(crate) type Result<T> = std::result::Result<T, LineProtocolError>;
 
 #[derive(Debug, Error)]
