@@ -50,7 +50,7 @@ let mut line_protocol = LineProtocol::new("measurement")
 line_protocol = line_protocol.measurement("new_measurement");
 ```
 
-Multiple fields can be add by calling the `add_field` method multiple times
+Multiple fields can be added by calling the `add_field` method multiple times
 
 ```rust
 let line_protocol = LineProtocol::new("measurement")
@@ -92,8 +92,6 @@ line_protocol.delete_tag("tag")
 ```
 
 **Note:** that deleting all fields will cause the building to fail as atleast **one** field is required
-
-</br>
 
 ### Parsing a line protocol string
 
