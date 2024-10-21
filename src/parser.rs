@@ -112,8 +112,8 @@ impl LineProtocol {
         let mut set = HashMap::new();
         for word in words.chunks_exact(2) {
             // Only FieldValue can actually return an error
-            let key = K::parse(&word[0]).map_err(|e| ParseError::InvalidSet(e.into()))?;
-            let value = V::parse(&word[1]).map_err(|e| ParseError::InvalidSet(e.into()))?;
+            let key = K::parse_from(&word[0]).map_err(|e| ParseError::InvalidSet(e.into()))?;
+            let value = V::parse_from(&word[1]).map_err(|e| ParseError::InvalidSet(e.into()))?;
 
             set.insert(key.unescape(), value.unescape());
         }
